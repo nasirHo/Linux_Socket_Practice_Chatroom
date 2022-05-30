@@ -1,0 +1,9 @@
+# ninja log v5
+277	329	1653949233795427149	chatroom_s	2ca25e3f06024135
+0	277	1653949233743426911	CMakeFiles/chatroom_s.dir/server.cpp.o	6698ff3970c0b906
+282	337	1653949201306278727	chatroom_c	b38e5f145ba7c896
+1	322	1653949007370395145	CMakeFiles/chatroom.dir/server.cpp.o	2dfd6a1be82174b
+0	360	1653949007409395322	CMakeFiles/chatroom.dir/main.cpp.o	a851cf400aa14a8f
+257	318	1653949074931702435	chatroom	b0f29c47086bc7a5
+1	257	1653949074871702162	CMakeFiles/chatroom.dir/client.cpp.o	f1ec47afd89ebed2
+0	281	1653949201251278476	CMakeFiles/chatroom_c.dir/client.cpp.o	76dbbb8b7ef67a1e

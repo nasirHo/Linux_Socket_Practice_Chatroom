@@ -1,0 +1,4 @@
+/home/nasirho/CLionProjects/chatroom/cmake-build-debug/CMakeFiles/chatroom_server.dir
+/home/nasirho/CLionProjects/chatroom/cmake-build-debug/CMakeFiles/chatroom_client.dir
+/home/nasirho/CLionProjects/chatroom/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/nasirho/CLionProjects/chatroom/cmake-build-debug/CMakeFiles/rebuild_cache.dir
