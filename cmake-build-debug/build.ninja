@@ -72,35 +72,97 @@ build chatroom_server: CXX_EXECUTABLE_LINKER__chatroom_server_Debug CMakeFiles/c
   TARGET_PDB = chatroom_server.dbg
 
 # =============================================================================
-# Object build statements for EXECUTABLE target chatroom_client
+# Object build statements for EXECUTABLE target chatroom_client1
 
 
 #############################################
-# Order-only phony target for chatroom_client
+# Order-only phony target for chatroom_client1
 
-build cmake_object_order_depends_target_chatroom_client: phony || CMakeFiles/chatroom_client.dir
+build cmake_object_order_depends_target_chatroom_client1: phony || CMakeFiles/chatroom_client1.dir
 
-build CMakeFiles/chatroom_client.dir/client.cpp.o: CXX_COMPILER__chatroom_client_Debug /home/nasirho/CLionProjects/chatroom/client.cpp || cmake_object_order_depends_target_chatroom_client
-  DEP_FILE = CMakeFiles/chatroom_client.dir/client.cpp.o.d
+build CMakeFiles/chatroom_client1.dir/client.cpp.o: CXX_COMPILER__chatroom_client1_Debug /home/nasirho/CLionProjects/chatroom/client.cpp || cmake_object_order_depends_target_chatroom_client1
+  DEP_FILE = CMakeFiles/chatroom_client1.dir/client.cpp.o.d
   FLAGS = -g -std=gnu++14
-  OBJECT_DIR = CMakeFiles/chatroom_client.dir
-  OBJECT_FILE_DIR = CMakeFiles/chatroom_client.dir
+  OBJECT_DIR = CMakeFiles/chatroom_client1.dir
+  OBJECT_FILE_DIR = CMakeFiles/chatroom_client1.dir
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target chatroom_client
+# Link build statements for EXECUTABLE target chatroom_client1
 
 
 #############################################
-# Link the executable chatroom_client
+# Link the executable chatroom_client1
 
-build chatroom_client: CXX_EXECUTABLE_LINKER__chatroom_client_Debug CMakeFiles/chatroom_client.dir/client.cpp.o
+build chatroom_client1: CXX_EXECUTABLE_LINKER__chatroom_client1_Debug CMakeFiles/chatroom_client1.dir/client.cpp.o
   FLAGS = -g
-  OBJECT_DIR = CMakeFiles/chatroom_client.dir
+  OBJECT_DIR = CMakeFiles/chatroom_client1.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_FILE = chatroom_client
-  TARGET_PDB = chatroom_client.dbg
+  TARGET_FILE = chatroom_client1
+  TARGET_PDB = chatroom_client1.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target chatroom_client2
+
+
+#############################################
+# Order-only phony target for chatroom_client2
+
+build cmake_object_order_depends_target_chatroom_client2: phony || CMakeFiles/chatroom_client2.dir
+
+build CMakeFiles/chatroom_client2.dir/client.cpp.o: CXX_COMPILER__chatroom_client2_Debug /home/nasirho/CLionProjects/chatroom/client.cpp || cmake_object_order_depends_target_chatroom_client2
+  DEP_FILE = CMakeFiles/chatroom_client2.dir/client.cpp.o.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles/chatroom_client2.dir
+  OBJECT_FILE_DIR = CMakeFiles/chatroom_client2.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target chatroom_client2
+
+
+#############################################
+# Link the executable chatroom_client2
+
+build chatroom_client2: CXX_EXECUTABLE_LINKER__chatroom_client2_Debug CMakeFiles/chatroom_client2.dir/client.cpp.o
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles/chatroom_client2.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = chatroom_client2
+  TARGET_PDB = chatroom_client2.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target chatroom_client3
+
+
+#############################################
+# Order-only phony target for chatroom_client3
+
+build cmake_object_order_depends_target_chatroom_client3: phony || CMakeFiles/chatroom_client3.dir
+
+build CMakeFiles/chatroom_client3.dir/client.cpp.o: CXX_COMPILER__chatroom_client3_Debug /home/nasirho/CLionProjects/chatroom/client.cpp || cmake_object_order_depends_target_chatroom_client3
+  DEP_FILE = CMakeFiles/chatroom_client3.dir/client.cpp.o.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles/chatroom_client3.dir
+  OBJECT_FILE_DIR = CMakeFiles/chatroom_client3.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target chatroom_client3
+
+
+#############################################
+# Link the executable chatroom_client3
+
+build chatroom_client3: CXX_EXECUTABLE_LINKER__chatroom_client3_Debug CMakeFiles/chatroom_client3.dir/client.cpp.o
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles/chatroom_client3.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = chatroom_client3
+  TARGET_PDB = chatroom_client3.dbg
 
 
 #############################################
@@ -137,7 +199,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /home/nasirho/CLionProjects/chatroom/cmake-build-debug
 
-build all: phony chatroom_server chatroom_client
+build all: phony chatroom_server chatroom_client1 chatroom_client2 chatroom_client3
 
 # =============================================================================
 # Built-in targets
