@@ -10,14 +10,18 @@
 #include <vector>
 #include <thread>
 #include <csignal>
+#include <unistd.h>
+#include <semaphore.h>
+#include <mutex>
 
 using namespace std;
 
-void stop_server(int server_socket);
+void stop_server(int signal);
 void client_initialize(int client_socket, int id);
 void broadcast_index();
-void writer(int id, const string& msg);
-void reader(int client_socket, int startIndex, int endIndex);
+void writer(int id, const string& name, const string& msg);
+void reader(int client_socket, int id, unsigned int startIndex,unsigned int endIndex);
+void endConnection(int id);
 
 struct terminal
 {
@@ -34,8 +38,15 @@ struct message_pack{
 vector<terminal> clients;
 vector<message_pack> msg_pool;
 int server_socket;
+int reader_count = 0;
+sem_t resource_mutex;
+sem_t reader_mutex;
+mutex clients_mutex;
 
 int main(){
+    sem_init(&resource_mutex, 0, 1);
+    sem_init(&reader_mutex,0,1);
+
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if(server_socket == -1){
         perror("socket: ");
@@ -59,12 +70,10 @@ int main(){
     }
 
     signal(SIGTERM, stop_server);
+    signal(SIGINT, stop_server);
     int client_socket = 0;
     struct sockaddr_in client{};
     unsigned int addrlen = sizeof(client);
-
-    char msg[] = "This is server";
-    char buffer[256] = {};
 
     int seed = 0;
     while(1){
@@ -75,15 +84,10 @@ int main(){
         }
         seed++;
         thread t(client_initialize, client_socket, seed);
+        lock_guard<mutex> guard(clients_mutex);
         clients.push_back({seed, string("Anonymous"), client_socket, (move(t))});
     }
 
-    for(auto & client : clients){
-        if(client.th.joinable())
-            client.th.join();
-    }
-
-    close(server_socket);
     return 0;
 }
 
@@ -100,7 +104,7 @@ void stop_server(int signal){
 void client_initialize(int client_socket, int id){
     char name[64], msg[256];
     short type;
-    unsigned int startIndex;
+    unsigned int startIndex, endIndex;
     recv(client_socket, name, sizeof(name),0);
     for(auto & client : clients){
         if(client.id == id){
@@ -108,48 +112,80 @@ void client_initialize(int client_socket, int id){
         }
     }
     string welcomMsg = (string)name + " has entered.";
-    msg_pool.push_back({(string)name, id, welcomMsg});
-    cout <<msg_pool[msg_pool.size() -1].name << ": " << msg_pool[msg_pool.size() -1].msg<<endl;
-    broadcast_index();
-    while(1){
-        int bytes_recv = recv(client_socket, &type, sizeof(short), 0);
+    writer(id, (string) name,welcomMsg);
+    while(true){
+        long bytes_recv = recv(client_socket, &type, sizeof(short), 0);
         if(bytes_recv <= 0)
             return;
 
         if(type == 0){
-            cout << "request from " << name << " type 0" << endl;
+            //cout << "request from " << name << " type 0" << endl;
             recv(client_socket, &startIndex, sizeof(unsigned int), 0);
-            reader(client_socket, startIndex, msg_pool.size());
+            recv(client_socket, &endIndex, sizeof(unsigned int), 0);
+            reader(client_socket, id, startIndex, endIndex);
         }else if(type == 1){
             recv(client_socket, msg, sizeof(msg), 0);
-            writer(id, (string)msg);
-            cout <<msg_pool[msg_pool.size() -1].name << ": " << msg_pool[msg_pool.size() -1].msg<<endl;
+            writer(id, (string) name,(string)msg);
+        }else if(type == 2){
+            writer(id, (string) name, (string) name + " has left.");
+            endConnection(id);
         }else{
             cout << "wierd thing";
         }
     }
-
-
-
 }
 
 void broadcast_index(){
     unsigned int index = msg_pool.size();
-    cout << "try to boracat index: " << index << endl;
+    //cout << "try to boracat index: " << index << endl;
     for(auto & client : clients){
         send(client.socket, &index, sizeof(index), 0);
     }
 }
 
-void reader(int client_socket, int startIndex, int endIndex){
-    char buff[256];
-    for(int i = startIndex; i < endIndex; ++i){
+void reader(int client_socket, int id, unsigned int startIndex,unsigned int endIndex){
+    char name[64], buff[256];
+    int msg_id;
+    sem_wait(&reader_mutex);
+    reader_count++;
+    if (reader_count == 1)
+        sem_wait(&resource_mutex);
+    sem_post(&reader_mutex);
+
+    for(unsigned int i = startIndex; i < endIndex; ++i){
+        if(msg_pool[i].id == id)
+            strcpy(name, "You");
+        else
+            strcpy(name, msg_pool[i].name.c_str());
+        msg_id = msg_pool[i].id;
         strcpy(buff, msg_pool[i].msg.c_str());
+        send(client_socket, name, sizeof(name), 0);
+        send(client_socket, &msg_id, sizeof(int), 0);
         send(client_socket, buff, sizeof(buff), 0);
     }
+    sem_wait(&reader_mutex);
+    reader_count--;
+    if (reader_count == 0)
+        sem_post(&resource_mutex);
+    sem_post(&reader_mutex);
 }
 
-void writer(int id, const string& msg){
-    msg_pool.push_back({"unknown", id, msg});
+void writer(int id, const string& name, const string& msg){
+    sem_wait(&resource_mutex);
+    msg_pool.push_back({name, id, msg});
     broadcast_index();
+    cout <<msg_pool[msg_pool.size() -1].name << ": " << msg_pool[msg_pool.size() -1].msg<<endl;
+    sem_post(&resource_mutex);
+}
+
+void endConnection(int id){
+    for(int i = 0; i < clients.size(); ++i){
+        if(clients[i].id == id){
+            lock_guard<mutex> guard(clients_mutex);
+            clients[i].th.detach();
+            close(clients[i].socket);
+            clients.erase(clients.begin()+i);
+            break;
+        }
+    }
 }
