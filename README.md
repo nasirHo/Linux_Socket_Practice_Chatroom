@@ -36,6 +36,6 @@ cmake --build .
 ![](chat.png)
 5. type /quit to leave
 ## Limitation
-- Chinese word cannot display
+~~- Chinese word cannot display~~
 - Clients count has limit
 - UI might wrong during resize terminal
