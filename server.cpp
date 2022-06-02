@@ -112,7 +112,7 @@ void client_initialize(int client_socket, int id){
         }
     }
     string welcomMsg = (string)name + " has entered.";
-    writer(id, (string) name,welcomMsg);
+    writer(0, "System",welcomMsg);
     while(true){
         long bytes_recv = recv(client_socket, &type, sizeof(short), 0);
         if(bytes_recv <= 0)
@@ -127,7 +127,7 @@ void client_initialize(int client_socket, int id){
             recv(client_socket, msg, sizeof(msg), 0);
             writer(id, (string) name,(string)msg);
         }else if(type == 2){
-            writer(id, (string) name, (string) name + " has left.");
+            writer(0, "System", (string) name + " has left.");
             endConnection(id);
         }else{
             cout << "wierd thing";
