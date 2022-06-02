@@ -33,10 +33,6 @@ int main(int argc, char **argv)
     wgetstr(input_board_win, name);
     ncurses_clear_line(input_board_win, 2, 0);
 
-    sprintf(welcom_msg, "Welcome, %s", name);
-    mvwprintw(ncurses_data.name_display_win, 2, 2, welcom_msg);
-    wrefresh(ncurses_data.name_display_win);
-
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if(client_socket == -1){
         perror("socket: ");
@@ -56,6 +52,14 @@ int main(int argc, char **argv)
 
     signal(SIGTERM, stop_client);
     signal(SIGINT, stop_client);
+    signal(SIGWINCH, stop_client);
+
+    sprintf(welcom_msg, "Welcome, %s", name);
+    wattron(ncurses_data.name_display_win ,COLOR_PAIR(1));
+    mvwprintw(ncurses_data.name_display_win, 1, 2, welcom_msg);
+    wattroff(ncurses_data.name_display_win ,COLOR_PAIR(1));
+    wrefresh(ncurses_data.name_display_win);
+
 
     send(client_socket, name, sizeof(name), 0);
     recv(client_socket, &startIndex, sizeof(unsigned int), 0);
@@ -116,7 +120,7 @@ void recv_msg(){
             recv(client_socket, &id, sizeof(int), 0);
             recv(client_socket, msg, sizeof(msg),0);
             sprintf(display_buff, "%s(%d): %s", name, id, msg);
-            ncurses_message_display(display_buff);
+            ncurses_message_display(display_buff, strcmp(name, "You") == 0);
             wrefresh(ncurses_data.input_board_win);
         }
     }

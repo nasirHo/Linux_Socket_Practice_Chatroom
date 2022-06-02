@@ -174,7 +174,7 @@ void writer(int id, const string& name, const string& msg){
     sem_wait(&resource_mutex);
     msg_pool.push_back({name, id, msg});
     broadcast_index();
-    cout <<msg_pool[msg_pool.size() -1].name << ": " << msg_pool[msg_pool.size() -1].msg<<endl;
+    cout <<msg_pool[msg_pool.size() -1].name << "("<< msg_pool[msg_pool.size() -1].id <<"): " << msg_pool[msg_pool.size() -1].msg<<endl;
     sem_post(&resource_mutex);
 }
 
