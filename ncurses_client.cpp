@@ -37,6 +37,7 @@ void ncurses_init()
     ncurses_data.name_display_width = max_x;
     ncurses_data.name_display_win = newwin(ncurses_data.name_display_height, ncurses_data.name_display_width, 0, 0);
     box(ncurses_data.name_display_win, 0, 0);
+    wbkgd(ncurses_data.name_display_win, COLOR_PAIR(1));
 
     ncurses_data.message_display_height = max_y - 5 - ncurses_data.name_display_height;
     ncurses_data.message_display_width = max_x;

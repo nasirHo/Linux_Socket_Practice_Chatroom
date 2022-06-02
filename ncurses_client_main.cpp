@@ -29,8 +29,11 @@ int main(int argc, char **argv)
 
     char name[64], welcom_msg[72];
 
+    mvwprintw(ncurses_data.name_display_win, 1, 2, "Hello, who are you?");
+    wrefresh(ncurses_data.name_display_win);
     mvwprintw(input_board_win, 2, 0, "Enter Name: ");
     wgetstr(input_board_win, name);
+    ncurses_clear_line(ncurses_data.name_display_win, 1, 2);
     ncurses_clear_line(input_board_win, 2, 0);
 
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -55,9 +58,9 @@ int main(int argc, char **argv)
     signal(SIGWINCH, stop_client);
 
     sprintf(welcom_msg, "Welcome, %s", name);
-    wattron(ncurses_data.name_display_win ,COLOR_PAIR(1));
+    //wattron(ncurses_data.name_display_win ,COLOR_PAIR(1));
     mvwprintw(ncurses_data.name_display_win, 1, 2, welcom_msg);
-    wattroff(ncurses_data.name_display_win ,COLOR_PAIR(1));
+    //wattroff(ncurses_data.name_display_win ,COLOR_PAIR(1));
     wrefresh(ncurses_data.name_display_win);
 
 
