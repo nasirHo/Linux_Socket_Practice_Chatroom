@@ -1,0 +1,16 @@
+/cmake-build-debug/
+/cmake-build-debug/.cmake/
+/cmake-build-debug/bin/
+/cmake-build-debug/CMakeFiles/
+/cmake-build-debug/Testing/
+/cmake-build-debug/chatroom
+/cmake-build-debug/chatroom_c
+/cmake-build-debug/chatroom_client
+/cmake-build-debug/chatroom_client1
+/cmake-build-debug/chatroom_client2
+/cmake-build-debug/chatroom_client3
+/cmake-build-debug/chatroom_s
+/cmake-build-debug/chatroom_server
+/cmake-build-debug/cmake_install.cmake
+/cmake-build-debug/ncurse
+/cmake-build-debug/rw_prob
