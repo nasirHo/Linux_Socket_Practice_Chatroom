@@ -24,9 +24,13 @@ sudo pacman -S base-devel cmake ncurses
 git clone https://github.com/nasirHo/Linux_Socket_Practice_Chatroom
 ```
 2. cd to this directory
-3. generate cmake configuration
+3. create a build directory and enter it
+```shell
+mkdir -p build && cd build
+```
+4. generate cmake configuration
 ```sh
-cmake .
+cmake ..
 ```
 3. build
 ```sh

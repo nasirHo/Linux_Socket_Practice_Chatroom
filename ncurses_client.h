@@ -22,7 +22,7 @@ typedef struct {
     sem_t message_display_mutex;
 } NcursesType;
 void ncurses_init();
-void ncurses_message_display(char* message, bool isSelf, bool isSystem);
+void ncurses_message_display(char* message, short color, bool isSystem);
 void ncurses_clear_line(WINDOW* win, int y, int x);
 
 

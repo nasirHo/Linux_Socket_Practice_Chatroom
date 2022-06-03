@@ -30,9 +30,14 @@ void ncurses_init()
     }
     start_color();
 
-    init_pair(1, COLOR_BLACK, COLOR_WHITE);
-    init_pair(2, COLOR_BLUE, COLOR_BLACK);
-    init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(1, COLOR_BLACK, COLOR_WHITE);//name windows color
+    init_pair(2, COLOR_MAGENTA, COLOR_YELLOW);//system message color
+    init_pair(3, COLOR_BLUE, COLOR_BLACK);//self color
+    init_pair(4, COLOR_GREEN, COLOR_BLACK);
+    init_pair(5, COLOR_WHITE, COLOR_BLACK);
+    init_pair(6, COLOR_RED, COLOR_BLACK);
+    init_pair(7, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(8, COLOR_CYAN, COLOR_BLACK);
 
     ncurses_data.name_display_height = 3;
     ncurses_data.name_display_width = max_x;
@@ -57,23 +62,27 @@ void ncurses_init()
 // 在 消息接收窗口中顯示message信息。
 // message放在窗口的最後一行，窗口向上滾動
 // 消息接收窗口 的最後一行不顯示字符，和 下面的 消息輸入窗口 分開
-void ncurses_message_display(char *message, bool isSelf, bool isSystem)
+void ncurses_message_display(char *message, short colors, bool isSystem)
 {
     sem_wait(&(ncurses_data.message_display_mutex));
     int scroll_lines = ceil(strlen(message) * 1.0 / ncurses_data.message_display_width);
     wscrl(ncurses_data.message_display_win, scroll_lines);
-    if (isSelf)
-        wattron(ncurses_data.message_display_win ,COLOR_PAIR(2));
+
     if (isSystem)
-        wattron(ncurses_data.message_display_win ,COLOR_PAIR(3));
+        wattron(ncurses_data.message_display_win ,COLOR_PAIR(2));
+    else
+        wattron(ncurses_data.message_display_win ,COLOR_PAIR(colors + 3));
+
     mvwprintw(ncurses_data.message_display_win,
               ncurses_data.message_display_height - scroll_lines - 1,
               0,
               message);
-    if (isSelf)
-        wattroff(ncurses_data.message_display_win, COLOR_PAIR(2));
+
     if (isSystem)
-        wattroff(ncurses_data.message_display_win, COLOR_PAIR(3));
+        wattroff(ncurses_data.message_display_win, COLOR_PAIR(2));
+    else
+        wattroff(ncurses_data.message_display_win, COLOR_PAIR(colors + 3));
+
     wrefresh(ncurses_data.message_display_win);
     sem_post(&(ncurses_data.message_display_mutex));
 }

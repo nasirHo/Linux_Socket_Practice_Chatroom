@@ -123,7 +123,7 @@ void recv_msg(){
             recv(client_socket, &id, sizeof(int), 0);
             recv(client_socket, msg, sizeof(msg),0);
             sprintf(display_buff, "%s(%d): %s", name, id, msg);
-            ncurses_message_display(display_buff, strcmp(name, "You") == 0, id == 0);
+            ncurses_message_display(display_buff, (strcmp(name, "You") != 0) * (id % 5 + 1), id == 0);
             wrefresh(ncurses_data.input_board_win);
         }
     }
