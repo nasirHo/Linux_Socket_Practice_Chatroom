@@ -11,8 +11,8 @@
 #include <thread>
 #include <csignal>
 #include <unistd.h>
-#include <semaphore.h>
 #include <mutex>
+#include <shared_mutex>
 
 using namespace std;
 
@@ -38,14 +38,17 @@ struct message_pack{
 vector<terminal> clients;
 vector<message_pack> msg_pool;
 int server_socket;
-int reader_count = 0;
-sem_t resource_mutex;
-sem_t reader_mutex;
+
+//int reader_count = 0;
+//sem_t resource_mutex;
+//sem_t reader_mutex;
 mutex clients_mutex;
 
+shared_timed_mutex g_mutex;
+
 int main(){
-    sem_init(&resource_mutex, 0, 1);
-    sem_init(&reader_mutex,0,1);
+//    sem_init(&resource_mutex, 0, 1);
+//    sem_init(&reader_mutex,0,1);
 
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if(server_socket == -1){
@@ -54,10 +57,10 @@ int main(){
     }
 
     struct sockaddr_in server{};
+    bzero(&server, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_port = htons(8080);
     server.sin_addr.s_addr = INADDR_ANY;
-    bzero(&server.sin_zero, 0);
 
     if(bind(server_socket, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) == -1){
         perror("bind error: ");
@@ -76,7 +79,7 @@ int main(){
     unsigned int addrlen = sizeof(client);
 
     int seed = 0;
-    while(1){
+    while(true){
         client_socket = accept(server_socket, (struct sockaddr *)&client, &addrlen);
         if(client_socket == -1){
             perror("accept error: ");
@@ -88,7 +91,6 @@ int main(){
         clients.push_back({seed, string("Anonymous"), client_socket, (move(t))});
     }
 
-    return 0;
 }
 
 void stop_server(int signal){
@@ -111,8 +113,8 @@ void client_initialize(int client_socket, int id){
             client.name = string(name);
         }
     }
-    string welcomMsg = (string)name + " has entered.";
-    writer(0, "System",welcomMsg);
+    string welcomeMsg = (string)name + " has entered.";
+    writer(0, "System", welcomeMsg);
     while(true){
         long bytes_recv = recv(client_socket, &type, sizeof(short), 0);
         if(bytes_recv <= 0)
@@ -146,11 +148,14 @@ void broadcast_index(){
 void reader(int client_socket, int id, unsigned int startIndex,unsigned int endIndex){
     char name[64], buff[256];
     int msg_id;
-    sem_wait(&reader_mutex);
-    reader_count++;
-    if (reader_count == 1)
-        sem_wait(&resource_mutex);
-    sem_post(&reader_mutex);
+
+//    sem_wait(&reader_mutex);
+//    reader_count++;
+//    if (reader_count == 1)
+//        sem_wait(&resource_mutex);
+//    sem_post(&reader_mutex);
+
+    shared_lock<shared_timed_mutex> r_lock(g_mutex);
 
     for(unsigned int i = startIndex; i < endIndex; ++i){
         if(msg_pool[i].id == id)
@@ -163,19 +168,20 @@ void reader(int client_socket, int id, unsigned int startIndex,unsigned int endI
         send(client_socket, &msg_id, sizeof(int), 0);
         send(client_socket, buff, sizeof(buff), 0);
     }
-    sem_wait(&reader_mutex);
-    reader_count--;
-    if (reader_count == 0)
-        sem_post(&resource_mutex);
-    sem_post(&reader_mutex);
+//    sem_wait(&reader_mutex);
+//    reader_count--;
+//    if (reader_count == 0)
+//        sem_post(&resource_mutex);
+//    sem_post(&reader_mutex);
 }
 
 void writer(int id, const string& name, const string& msg){
-    sem_wait(&resource_mutex);
+//    sem_wait(&resource_mutex);
+    unique_lock<shared_timed_mutex> w_lock(g_mutex);
     msg_pool.push_back({name, id, msg});
     broadcast_index();
     cout <<msg_pool[msg_pool.size() -1].name << "("<< msg_pool[msg_pool.size() -1].id <<"): " << msg_pool[msg_pool.size() -1].msg<<endl;
-    sem_post(&resource_mutex);
+//    sem_post(&resource_mutex);
 }
 
 void endConnection(int id){

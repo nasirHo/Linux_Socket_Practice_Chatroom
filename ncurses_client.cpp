@@ -5,7 +5,7 @@
 #include "ncurses_client.h"
 #include <cstring>
 #include <cmath>
-#include <locale.h>
+#include <clocale>
 
 extern NcursesType ncurses_data;
 // 初始化 ncurses 界面
