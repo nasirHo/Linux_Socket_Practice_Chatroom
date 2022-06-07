@@ -10,10 +10,7 @@
 #include <vector>
 #include <mutex>
 #include <shared_mutex>
-
-
-#define NAME_LENGTH_LIMIT 64
-#define MSG_LENGTH_LIMIT 256
+#include "global.h"
 
 struct terminal
 {
