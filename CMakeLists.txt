@@ -10,10 +10,10 @@ find_package(Threads REQUIRED)
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIRS})
 
-add_executable(chatroom_server server.cpp)
+add_executable(chatroom_server server.cpp server.h)
 target_link_libraries(chatroom_server PRIVATE Threads::Threads)
 
 
-add_executable(chatroom_client_ncurses ncurses_client_main.cpp ncurses_client.cpp ncurses_client.h)
+add_executable(chatroom_client_ncurses ncurses_client_main.cpp ncurses_client.cpp ncurses_client.h server.h)
 target_link_libraries(chatroom_client_ncurses PRIVATE ${CURSES_LIBRARIES} Threads::Threads)
 

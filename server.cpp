@@ -7,46 +7,19 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <vector>
-#include <thread>
 #include <csignal>
 #include <unistd.h>
-#include <mutex>
-#include <shared_mutex>
+#include "server.h"
 
 using namespace std;
 
-void stop_server(int signal);
-void client_initialize(int client_socket, int id);
-void broadcast_index();
-void writer(int id, const string& name, const string& msg);
-void reader(int client_socket, int id, unsigned int startIndex,unsigned int endIndex);
-void endConnection(int id);
+vector<terminal> server::clients;
+vector<message_pack> server::msg_pool;
+int server::server_socket = 0;
+mutex server::clients_mutex;
+shared_timed_mutex server::g_mutex;
 
-struct terminal
-{
-    int id;
-    string name;
-    int socket;
-    thread th;
-};
-struct message_pack{
-    string name;
-    int id;
-    string msg;
-};
-vector<terminal> clients;
-vector<message_pack> msg_pool;
-int server_socket;
-
-//int reader_count = 0;
-//sem_t resource_mutex;
-//sem_t reader_mutex;
-mutex clients_mutex;
-
-shared_timed_mutex g_mutex;
-
-int main(){
+server::server() {
 //    sem_init(&resource_mutex, 0, 1);
 //    sem_init(&reader_mutex,0,1);
 
@@ -72,6 +45,8 @@ int main(){
         exit(-1);
     }
 
+    cout << "start listening...\n";
+
     signal(SIGTERM, stop_server);
     signal(SIGINT, stop_server);
     int client_socket = 0;
@@ -93,7 +68,7 @@ int main(){
 
 }
 
-void stop_server(int signal){
+void server::stop_server(int signal){
     for(auto & client : clients){
         if(client.th.joinable())
             client.th.join();
@@ -103,8 +78,8 @@ void stop_server(int signal){
     exit(signal);
 }
 
-void client_initialize(int client_socket, int id){
-    char name[64], msg[256];
+void server::client_initialize(int client_socket, int id){
+    char name[NAME_LENGTH_LIMIT], msg[MSG_LENGTH_LIMIT];
     short type;
     unsigned int startIndex, endIndex;
     recv(client_socket, name, sizeof(name),0);
@@ -120,24 +95,27 @@ void client_initialize(int client_socket, int id){
         if(bytes_recv <= 0)
             return;
 
-        if(type == 0){
-            //cout << "request from " << name << " type 0" << endl;
-            recv(client_socket, &startIndex, sizeof(unsigned int), 0);
-            recv(client_socket, &endIndex, sizeof(unsigned int), 0);
-            reader(client_socket, id, startIndex, endIndex);
-        }else if(type == 1){
-            recv(client_socket, msg, sizeof(msg), 0);
-            writer(id, (string) name,(string)msg);
-        }else if(type == 2){
-            writer(0, "System", (string) name + " has left.");
-            endConnection(id);
-        }else{
-            cout << "wierd thing";
+        switch (type) {
+            case 0:
+                recv(client_socket, &startIndex, sizeof(unsigned int), 0);
+                recv(client_socket, &endIndex, sizeof(unsigned int), 0);
+                reader(client_socket, id, startIndex, endIndex);
+                break;
+            case 1:
+                recv(client_socket, msg, sizeof(msg), 0);
+                writer(id, (string) name,(string)msg);
+                break;
+            case 2:
+                writer(0, "System", (string) name + " has left.");
+                endConnection(id);
+                break;
+            default:
+                cout << "wrong!";
         }
     }
 }
 
-void broadcast_index(){
+void server::broadcast_index(){
     unsigned int index = msg_pool.size();
     //cout << "try to boracat index: " << index << endl;
     for(auto & client : clients){
@@ -145,7 +123,7 @@ void broadcast_index(){
     }
 }
 
-void reader(int client_socket, int id, unsigned int startIndex,unsigned int endIndex){
+void server::reader(int client_socket, int id, unsigned int startIndex,unsigned int endIndex){
     char name[64], buff[256];
     int msg_id;
 
@@ -175,7 +153,7 @@ void reader(int client_socket, int id, unsigned int startIndex,unsigned int endI
 //    sem_post(&reader_mutex);
 }
 
-void writer(int id, const string& name, const string& msg){
+inline void server::writer(int id, const string& name, const string& msg){
 //    sem_wait(&resource_mutex);
     unique_lock<shared_timed_mutex> w_lock(g_mutex);
     msg_pool.push_back({name, id, msg});
@@ -184,7 +162,7 @@ void writer(int id, const string& name, const string& msg){
 //    sem_post(&resource_mutex);
 }
 
-void endConnection(int id){
+void server::endConnection(int id){
     for(int i = 0; i < clients.size(); ++i){
         if(clients[i].id == id){
             lock_guard<mutex> guard(clients_mutex);
@@ -194,4 +172,11 @@ void endConnection(int id){
             break;
         }
     }
+}
+
+
+int main(int argc, char **argv){
+    server s;
+
+    return 0;
 }

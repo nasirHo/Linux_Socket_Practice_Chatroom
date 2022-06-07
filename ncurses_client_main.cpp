@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "ncurses_client.h"
+#include "server.h"
 using namespace std;
 
 void send_msg();
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
     ncurses_init();
     WINDOW *input_board_win = ncurses_data.input_board_win;
 
-    char name[64], welcom_msg[72];
+    char name[NAME_LENGTH_LIMIT], welcomeMsg[NAME_LENGTH_LIMIT + 10];
 
     mvwprintw(ncurses_data.name_display_win, 1, 2, "Hello, who are you?");
     wrefresh(ncurses_data.name_display_win);
@@ -43,10 +44,10 @@ int main(int argc, char **argv)
     }
 
     struct sockaddr_in client{};
+    bzero(&client, sizeof(client));
     client.sin_family = AF_INET;
     client.sin_port = htons(8080);
     client.sin_addr.s_addr = INADDR_ANY;
-    bzero(&client.sin_zero, 0);
 
     if(connect(client_socket, (struct sockaddr *)&client, sizeof(struct sockaddr_in)) == -1){
         perror("connect: ");
@@ -57,9 +58,9 @@ int main(int argc, char **argv)
     signal(SIGINT, stop_client);
     signal(SIGWINCH, stop_client);
 
-    sprintf(welcom_msg, "Welcome, %s", name);
+    sprintf(welcomeMsg, "Welcome, %s", name);
     //wattron(ncurses_data.name_display_win ,COLOR_PAIR(1));
-    mvwprintw(ncurses_data.name_display_win, 1, 2, welcom_msg);
+    mvwprintw(ncurses_data.name_display_win, 1, 2, welcomeMsg);
     //wattroff(ncurses_data.name_display_win ,COLOR_PAIR(1));
     wrefresh(ncurses_data.name_display_win);
 
@@ -85,7 +86,7 @@ int main(int argc, char **argv)
 
 void send_msg(){
     short type = 1;
-    char message[256];
+    char message[MSG_LENGTH_LIMIT];
     while(true){
         mvwprintw(ncurses_data.input_board_win, 2, 0, "message: ");
         wgetstr(ncurses_data.input_board_win, message);
@@ -109,7 +110,7 @@ void recv_msg(){
         if(exitFlag) return;
         unsigned int index;
         int id;
-        char name[64], msg[256], display_buff[512];
+        char name[NAME_LENGTH_LIMIT], msg[MSG_LENGTH_LIMIT], display_buff[NAME_LENGTH_LIMIT + MSG_LENGTH_LIMIT + 10];
         long bytes_recv = recv(client_socket, &index,sizeof(unsigned int), 0);
         if(bytes_recv <= 0)
             continue;
